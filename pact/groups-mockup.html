@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>InPact — Explore Groups</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090f;
+      --bg2: #0f0f18;
+      --bg3: #181824;
+      --card: #13131c;
+      --card2: #1c1c28;
+      --card-hover: #222230;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.15);
+      --accent: #ff4d6d;
+      --accent2: #ff8c42;
+      --purple: #7c5cbf;
+      --blue: #3b82f6;
+      --green: #22c55e;
+      --yellow: #f59e0b;
+      --red: #ef4444;
+      --text: #f0f0fa;
+      --text-muted: #a1a1aa;
+      --muted: #4b5563;
+      --muted2: #9ca3af;
+      --flame: linear-gradient(135deg, #ff4d6d, #ff8c42);
+      --sidebar-w: 220px;
+      --sidebar-collapsed: 60px;
+      --topbar-h: 58px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ════════════════════════════════════════
+       TOP BAR & SIDEBAR (Inherited from Dashboard)
+    ════════════════════════════════════════ */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: var(--topbar-h);
+      background: rgba(9,9,15,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 20px 0 0;
+      z-index: 200;
+    }
+    .topbar-logo {
+      width: var(--sidebar-collapsed);
+      min-width: var(--sidebar-collapsed);
+      display: flex; align-items: center; gap: 10px;
+      padding: 0 14px;
+      transition: width .3s, min-width .3s;
+      overflow: hidden;
+    }
+    .logo-mark {
+      width: 32px; height: 32px; border-radius: 9px; flex-shrink: 0;
+      background: var(--flame);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 900; color: white;
+      box-shadow: 0 0 14px rgba(255,77,109,0.45);
+    }
+    .topbar-center { flex: 1; display: flex; align-items: center; padding: 0 24px; }
+    .topbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .icon-btn {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: var(--card); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; cursor: pointer; position: relative;
+      transition: all .2s;
+    }
+    .icon-btn:hover { background: var(--card2); border-color: var(--border2); }
+    .profile-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--flame);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; cursor: pointer;
+      border: 2px solid rgba(255,77,109,0.35);
+      transition: all .2s;
+    }
+
+    .shell { display: flex; padding-top: var(--topbar-h); min-height: 100vh; }
+
+    .sidebar {
+      width: var(--sidebar-collapsed);
+      min-width: var(--sidebar-collapsed);
+      height: calc(100vh - var(--topbar-h));
+      position: fixed; top: var(--topbar-h); left: 0;
+      background: var(--bg2); border-right: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 14px 10px; gap: 4px;
+      transition: width .3s, min-width .3s; z-index: 150; overflow: hidden;
+    }
+    .toggle-btn {
+      align-self: center; width: 28px; height: 28px; border-radius: 8px;
+      background: var(--card2); border: 1px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; cursor: pointer; transition: all .3s; flex-shrink: 0;
+      margin-bottom: 20px; color: var(--muted2); transform: rotate(180deg);
+    }
+    .nav-item {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+      color: var(--muted2); transition: all .2s; margin: 0 auto 4px;
+    }
+    .nav-item:hover { background: var(--card2); color: var(--text); }
+    .nav-item.active { background: rgba(255,77,109,0.12); color: var(--accent); }
+    .nav-icon { font-size: 18px; }
+
+    /* ════════════════════════════════════════
+       MAIN CONTENT: EXPLORE GROUPS
+    ════════════════════════════════════════ */
+    .main {
+      margin-left: var(--sidebar-collapsed);
+      flex: 1; padding: 32px 48px;
+      display: flex; flex-direction: column;
+      max-width: 1200px; margin: 0 auto;
+      margin-left: calc(var(--sidebar-collapsed) + auto);
+      position: relative;
+    }
+
+    /* ─── HEADER ROW ─── */
+    .header-row {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+    }
+    .back-btn {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--card2); border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all .2s; font-size: 16px; color: var(--text-muted);
+    }
+    .back-btn:hover { background: var(--card-hover); color: var(--text); transform: translateX(-2px); }
+    .page-title { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+
+    /* ─── SEARCH & APPS (LEETCODE STYLE) ─── */
+    .search-apps-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 20px;
+    }
+    .search-box {
+      display: flex; align-items: center; gap: 10px;
+      background: var(--card); border: 1px solid var(--border2);
+      padding: 10px 16px; border-radius: 99px; width: 260px;
+      transition: border-color .2s;
+    }
+    .search-box:focus-within { border-color: rgba(255,77,109,0.5); box-shadow: 0 0 0 2px rgba(255,77,109,0.15); }
+    .search-box input {
+      background: transparent; border: none; outline: none;
+      color: var(--text); font-size: 14px; width: 100%; font-family: 'Inter', sans-serif;
+    }
+    .search-box input::placeholder { color: var(--muted); }
+    .search-icon { color: var(--muted); font-size: 14px; }
+
+    .app-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card2); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 99px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all .2s;
+    }
+    .app-pill:hover { background: var(--card-hover); color: var(--text); border-color: var(--border2); }
+    .app-pill.active { background: white; color: black; font-weight: 700; }
+    .app-icon { width: 16px; height: 16px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    /* ─── FILTERS ROW ─── */
+    .filters-row {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border);
+    }
+    .filters-left { display: flex; align-items: center; gap: 12px; }
+    .filter-dropdown {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 1px solid transparent;
+      padding: 6px 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      cursor: pointer; transition: all .2s;
+    }
+    .filter-dropdown:hover { background: var(--card2); color: var(--text); }
+    .caret { font-size: 10px; color: var(--muted); }
+
+    .filters-right { display: flex; align-items: center; gap: 12px; font-size: 13px; color: var(--muted2); }
+
+    /* ─── GROUPS LIST (TABLE-LIKE) ─── */
+    .groups-list {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .group-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      align-items: center;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 14px 20px;
+      cursor: pointer; transition: all .2s;
+    }
+    .group-row:hover { background: var(--card-hover); border-color: var(--border2); transform: translateX(4px); }
+    
+    /* Columns */
+    .col-name { display: flex; align-items: center; gap: 14px; }
+    .g-av {
+      width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 800; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+    }
+    .g-info h3 { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+    .g-info p { font-size: 12px; color: var(--muted2); margin-top: 4px; }
+
+    .col-privacy { display: flex; align-items: center; }
+    .badge-privacy {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      background: rgba(255,255,255,0.05); color: var(--text-muted); border: 1px solid var(--border);
+    }
+    .badge-privacy.public { color: var(--green); background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+    
+    .col-consistency { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 700; color: var(--text); }
+    .c-bar-bg { width: 60px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 99px; overflow: hidden; }
+    .c-bar-fill { height: 100%; border-radius: 99px; }
+
+    .col-commitment { display: flex; align-items: center; justify-content: flex-end; }
+    .badge-stake {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700;
+    }
+    .stake-blood { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.25); }
+    .stake-casual { background: rgba(161,161,170,0.1); color: var(--text-muted); border: 1px solid rgba(255,255,255,0.1); }
+
+    /* ─── FLOATING ACTION BUTTON ─── */
+    .fab {
+      position: fixed; bottom: 40px; right: 40px;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: var(--flame);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: white; cursor: pointer;
+      box-shadow: 0 12px 28px rgba(255,77,109,0.35);
+      transition: all .3s cubic-bezier(.4,0,.2,1); z-index: 100;
+    }
+    .fab:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 16px 36px rgba(255,77,109,0.5); }
+    .fab:active { transform: translateY(2px) scale(0.95); }
+
+    /* ─── ANIMATIONS ─── */
+    @keyframes slideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    .group-row { animation: slideIn .4s ease both; }
+    .group-row:nth-child(1) { animation-delay: 0.05s; }
+    .group-row:nth-child(2) { animation-delay: 0.1s; }
+    .group-row:nth-child(3) { animation-delay: 0.15s; }
+    .group-row:nth-child(4) { animation-delay: 0.2s; }
+    .group-row:nth-child(5) { animation-delay: 0.25s; }
+  </style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-mark">P</div>
+  </div>
+  <div class="topbar-center"></div>
+  <div class="topbar-right">
+    <div class="icon-btn">🔔</div>
+    <div class="profile-btn">N</div>
+  </div>
+</header>
+
+<!-- SHELL -->
+<div class="shell">
+  <!-- SIDEBAR (Collapsed) -->
+  <nav class="sidebar">
+    <button class="toggle-btn" title="Toggle sidebar">◀</button>
+    <div class="nav-item">🏠</div>
+    <div class="nav-item active">👥</div>
+    <div class="nav-item">📸</div>
+    <div class="nav-item">🏆</div>
+    <div class="nav-item" style="margin-top:auto">⚙️</div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    
+    <!-- HEADER -->
+    <div class="header-row">
+      <button class="back-btn">←</button>
+      <h1 class="page-title">Explore Pacts</h1>
+    </div>
+
+    <!-- SEARCH & APPS (LEETCODE INSPIRED) -->
+    <div class="search-apps-row">
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search groups, habits, apps...">
+      </div>
+      <div class="app-pill active">
+        <span class="app-icon" style="background:#000;color:#fff">All</span> All Topics
+      </div>
+      <div class="app-pill">
+        <span class="app-icon" style="background:#24292e;color:#fff">G</span> GitHub
+      </div>
+      <div class="app-pill">
+        <span class="app-icon" style="background:#fc4c02;color:#fff">S</span> Strava
+      </div>
+      <div class="app-pill">
+        <span class="app-icon" style="background:#58cc02;color:#fff">D</span> Duolingo
+      </div>
+      <div class="app-pill">
+        <span class="app-icon" style="background:#3182ce;color:#fff">C</span> CodeForces
+      </div>
+      <div class="app-pill">
+        <span class="app-icon" style="background:var(--card);color:var(--text)">🏋️</span> Gym & Fitness
+      </div>
+    </div>
+
+    <!-- FILTERS -->
+    <div class="filters-row">
+      <div class="filters-left">
+        <div class="filter-dropdown">Commitment <span class="caret">▼</span></div>
+        <div class="filter-dropdown">Privacy <span class="caret">▼</span></div>
+        <div class="filter-dropdown">Status <span class="caret">▼</span></div>
+        <div class="filter-dropdown">Sort by <span class="caret">▼</span></div>
+      </div>
+      <div class="filters-right">
+        <span>🔄 142 Groups Found</span>
+      </div>
+    </div>
+
+    <!-- LIST HEADER -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;padding:0 20px 10px;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px">
+      <div>Group</div>
+      <div>Privacy</div>
+      <div>Consistency</div>
+      <div style="text-align:right">Commitment</div>
+    </div>
+
+    <!-- GROUPS LIST -->
+    <div class="groups-list">
+      
+      <!-- Row 1 -->
+      <div class="group-row">
+        <div class="col-name">
+          <div class="g-av" style="background:linear-gradient(135deg,#58cc02,#46a302)">🦉</div>
+          <div class="g-info">
+            <h3>Polyglots Anonymous</h3>
+            <p>Duolingo · 14 members · Spanish & French</p>
+          </div>
+        </div>
+        <div class="col-privacy">
+          <span class="badge-privacy public">🌍 Public</span>
+        </div>
+        <div class="col-consistency">
+          <span style="color:var(--green)">98.2%</span>
+          <div class="c-bar-bg"><div class="c-bar-fill" style="width:98%;background:var(--green)"></div></div>
+        </div>
+        <div class="col-commitment">
+          <span class="badge-stake stake-blood">🩸 Blood Pact</span>
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="group-row">
+        <div class="col-name">
+          <div class="g-av" style="background:linear-gradient(135deg,#24292e,#1b1f23)">💻</div>
+          <div class="g-info">
+            <h3>100 Days of Code</h3>
+            <p>GitHub · 42 members · Daily Commits</p>
+          </div>
+        </div>
+        <div class="col-privacy">
+          <span class="badge-privacy public">🌍 Public</span>
+        </div>
+        <div class="col-consistency">
+          <span style="color:var(--yellow)">84.5%</span>
+          <div class="c-bar-bg"><div class="c-bar-fill" style="width:84%;background:var(--yellow)"></div></div>
+        </div>
+        <div class="col-commitment">
+          <span class="badge-stake stake-casual">☕ Casual Pact</span>
+        </div>
+      </div>
+
+      <!-- Row 3 -->
+      <div class="group-row">
+        <div class="col-name">
+          <div class="g-av" style="background:linear-gradient(135deg,#fc4c02,#e04402)">🏃‍♂️</div>
+          <div class="g-info">
+            <h3>Morning Miles Club</h3>
+            <p>Strava · 8 members · 5k before 8AM</p>
+          </div>
+        </div>
+        <div class="col-privacy">
+          <span class="badge-privacy public">🌍 Public</span>
+        </div>
+        <div class="col-consistency">
+          <span style="color:var(--green)">92.0%</span>
+          <div class="c-bar-bg"><div class="c-bar-fill" style="width:92%;background:var(--green)"></div></div>
+        </div>
+        <div class="col-commitment">
+          <span class="badge-stake stake-blood">🩸 Blood Pact</span>
+        </div>
+      </div>
+
+      <!-- Row 4 -->
+      <div class="group-row">
+        <div class="col-name">
+          <div class="g-av" style="background:linear-gradient(135deg,#7c5cbf,#5a3e9c)">🏋️</div>
+          <div class="g-info">
+            <h3>Elite Iron Squad</h3>
+            <p>Verification: Photo · 5 members · PPL Split</p>
+          </div>
+        </div>
+        <div class="col-privacy">
+          <span class="badge-privacy">🔒 Private</span>
+        </div>
+        <div class="col-consistency">
+          <span style="color:var(--red)">64.1%</span>
+          <div class="c-bar-bg"><div class="c-bar-fill" style="width:64%;background:var(--red)"></div></div>
+        </div>
+        <div class="col-commitment">
+          <span class="badge-stake stake-blood">🩸 Blood Pact</span>
+        </div>
+      </div>
+
+      <!-- Row 5 -->
+      <div class="group-row">
+        <div class="col-name">
+          <div class="g-av" style="background:linear-gradient(135deg,#3182ce,#2b6cb0)">🏆</div>
+          <div class="g-info">
+            <h3>Div-2 Sweepers</h3>
+            <p>CodeForces · 22 members · 1 problem/day</p>
+          </div>
+        </div>
+        <div class="col-privacy">
+          <span class="badge-privacy public">🌍 Public</span>
+        </div>
+        <div class="col-consistency">
+          <span style="color:var(--green)">95.5%</span>
+          <div class="c-bar-bg"><div class="c-bar-fill" style="width:95%;background:var(--green)"></div></div>
+        </div>
+        <div class="col-commitment">
+          <span class="badge-stake stake-casual">☕ Casual Pact</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- FLOATING ACTION BUTTON -->
+<div class="fab" title="Create New Pact">
+  +
+</div>
+
+</body>
+</html>
