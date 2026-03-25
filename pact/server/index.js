@@ -11,10 +11,10 @@ app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173' }));
 app.use(express.json());
 
 // Routes (to be added)
-// app.use('/api/auth', require('./routes/auth'));
-// app.use('/api/groups', require('./routes/groups'));
-// app.use('/api/checkins', require('./routes/checkins'));
-// app.use('/api/streaks', require('./routes/streaks'));
+app.use('/api/auth', require('./routes/auth'));
+app.use('/api/groups', require('./routes/groups'));
+app.use('/api/checkins', require('./routes/checkins'));
+app.use('/api/streaks', require('./routes/streaks'));
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'Pact API running 🚀' }));
