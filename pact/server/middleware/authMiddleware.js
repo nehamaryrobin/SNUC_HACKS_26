@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
 const protect = async (req, res, next) => {
   let token;
@@ -21,15 +22,31 @@ const protect = async (req, res, next) => {
       // Get user from the token
       req.user = await User.findById(decoded.id).select('-password');
 
-      next();
+      return next();
     } catch (error) {
       console.error(error);
-      res.status(401).json({ message: 'Not authorized' });
+      return res.status(401).json({ message: 'Not authorized' });
     }
   }
 
+  // --- HACKATHON BYPASS: Auto-Login if no token ---
   if (!token) {
-    res.status(401).json({ message: 'Not authorized, no token' });
+    try {
+      let demoUser = await User.findOne({ email: 'demo@pact.com' });
+      if (!demoUser) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('password123', salt);
+        demoUser = await User.create({
+          name: 'Demo User',
+          email: 'demo@pact.com',
+          password: hashedPassword,
+        });
+      }
+      req.user = demoUser;
+      return next();
+    } catch (error) {
+      return res.status(401).json({ message: 'Not authorized, no token and auto-login failed' });
+    }
   }
 };
 

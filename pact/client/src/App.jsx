@@ -6,6 +6,7 @@ import { GroupDetailPage } from './pages/GroupDetailPage';
 import { FindGroupsPage } from './pages/FindGroupsPage';
 import { CreateGroupPage } from './pages/CreateGroupPage';
 import { WalletPage } from './pages/WalletPage';
+import { GlobalLeaderboardPage } from './pages/GlobalLeaderboardPage';
 import './App.css';
 
 function App() {
@@ -19,12 +20,12 @@ function App() {
   };
 
   const handleNavigate = (page, params = null) => {
+    setActivePage(page);
     if (page === 'groupDetail' && params) {
       setSelectedGroupId(params);
-    } else if (page === 'groups') {
+    } else {
       setSelectedGroupId(null);
     }
-    setActivePage(page);
   };
 
   return (
@@ -45,13 +46,15 @@ function App() {
         <FindGroupsPage onBack={() => handleNavigate('groups')} onCreateNew={() => setActivePage('createGroup')} />
       )}
       {activePage === 'createGroup' && (
-        <CreateGroupPage onBack={() => setActivePage('findGroups')} onCreate={(newGroup) => {
-          console.log('New group created:', newGroup);
+        <CreateGroupPage onBack={() => setActivePage('groups')} onCreate={(newGroup) => {
           setActivePage('groups');
         }} />
       )}
       {activePage === 'wallet' && (
         <WalletPage />
+      )}
+      {activePage === 'leaderboard' && (
+        <GlobalLeaderboardPage />
       )}
     </AppLayout>
   );

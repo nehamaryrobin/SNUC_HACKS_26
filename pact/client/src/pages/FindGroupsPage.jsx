@@ -57,9 +57,39 @@ function DropdownFilter({ label }) {
 }
 
 /* ── Group Detail Popup ───────────────────────────────────────────── */
-function GroupPopup({ group, onClose }) {
+function GroupPopup({ group, onClose, onJoinSuccess }) {
+  const [loading, setLoading] = useState(false);
+
   if (!group) return null;
   const isMoney = group.pactType === 'blood';
+
+  const handleJoin = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: group.name,
+          description: group.description,
+          payment_type: isMoney ? 'paid' : 'free',
+          verification_type: 'api',
+          deposit_amount: group.depositAmount || 0
+        })
+      });
+      
+      if (response.ok) {
+        onJoinSuccess();
+      } else {
+        console.error('Failed to create/join group on backend');
+      }
+    } catch (error) {
+      console.error('API Error:', error);
+    } finally {
+      setLoading(false);
+      onClose();
+    }
+  };
 
   return (
     /* Backdrop */
@@ -152,17 +182,18 @@ function GroupPopup({ group, onClose }) {
 
           {/* CTA */}
           <button
-            className="w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
+            onClick={handleJoin}
+            disabled={loading}
+            className="w-full py-3 rounded-2xl text-sm font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:hover:translate-y-0"
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', boxShadow: '0 4px 14px rgba(124,58,237,0.3)' }}
           >
-            {isMoney && group.depositAmount > 0 ? `Join & Deposit ₹${group.depositAmount}` : 'Join Group'}
+            {loading ? 'Processing...' : (isMoney && group.depositAmount > 0 ? `Join & Deposit ₹${group.depositAmount}` : 'Join Group')}
           </button>
         </div>
       </div>
     </div>
   );
 }
-
 /* ── Main Page ───────────────────────────────────────────────────── */
 export function FindGroupsPage({ onBack, onCreateNew }) {
   const [search, setSearch] = useState('');
@@ -293,7 +324,7 @@ export function FindGroupsPage({ onBack, onCreateNew }) {
       </div>
 
       {/* Popup */}
-      <GroupPopup group={selectedGroup} onClose={() => setSelectedGroup(null)} />
+      <GroupPopup group={selectedGroup} onClose={() => setSelectedGroup(null)} onJoinSuccess={onBack} />
     </div>
   );
 }

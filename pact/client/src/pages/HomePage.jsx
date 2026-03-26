@@ -1,5 +1,6 @@
 import React from 'react';
-import { Target, Zap, Clock, CheckCircle2, TrendingUp, IndianRupee } from 'lucide-react';
+import { Target, Zap, Clock, CheckCircle2, TrendingUp, IndianRupee, ShieldCheck, Trophy, Rocket } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { mockGroups } from '../data/mockGroups'; // Use existing mock data
 
 export function HomePage({ onNavigate }) {
@@ -11,6 +12,12 @@ export function HomePage({ onNavigate }) {
   
   const doneTasks = [
     { id: 3, name: '100 Days of Code', time: 'done at 8:00 AM', icon: '💻', color: '#111827', money: true }
+  ];
+
+  const badges = [
+    { id: 1, name: 'Consistency King', icon: <Trophy size={18} />, color: 'bg-yellow-100 text-yellow-600', desc: '15 day streak' },
+    { id: 2, name: 'Whale Saver', icon: <ShieldCheck size={18} />, color: 'bg-blue-100 text-blue-600', desc: 'Saved 500 in deposits' },
+    { id: 3, name: 'Early Bird', icon: <Rocket size={18} />, color: 'bg-indigo-100 text-indigo-600', desc: 'Checked in before 8 AM' },
   ];
 
   return (
@@ -125,8 +132,31 @@ export function HomePage({ onNavigate }) {
           </div>
         </div>
 
+        {/* Achievements Section */}
+        <div className="mb-6">
+          <h2 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Badges & Achievements</h2>
+          <div className="grid grid-cols-3 gap-3">
+            {badges.map((badge, idx) => (
+              <motion.div
+                key={badge.id}
+                whileHover={{ y: -5, scale: 1.02 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.1 }}
+                className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex flex-col items-center text-center cursor-default group"
+              >
+                <div className={`w-12 h-12 rounded-2xl ${badge.color} flex items-center justify-center mb-3 shadow-inner group-hover:shadow transition-all`}>
+                  {badge.icon}
+                </div>
+                <p className="text-[11px] font-black text-gray-800 leading-tight">{badge.name}</p>
+                <p className="text-[9px] text-gray-400 font-medium mt-1 uppercase tracking-tighter">{badge.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
         {/* Accountability Alert (Mock) */}
-        <div className="bg-rose-50 rounded-2xl border border-rose-100 p-5 flex items-start gap-3 relative overflow-hidden">
+        <div className="bg-rose-50 rounded-2xl border border-rose-100 p-5 flex items-start gap-3 relative overflow-hidden mb-8">
           <div className="absolute top-0 right-0 w-32 h-32 bg-rose-200 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3" />
           <Target size={20} className="text-rose-500 shrink-0 mt-0.5" />
           <div className="relative z-10 w-full mb-1">
@@ -139,7 +169,6 @@ export function HomePage({ onNavigate }) {
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );

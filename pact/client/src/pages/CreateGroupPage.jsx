@@ -9,20 +9,49 @@ export function CreateGroupPage({ onBack, onCreate }) {
   const [platform, setPlatform] = useState('GitHub');
   const [privacy, setPrivacy] = useState('public');
   const [pactType, setPactType] = useState('free');
+  const [loading, setLoading] = useState(false);
   
   // Money Pact specific
   const [deposit, setDeposit] = useState(50);
   const [penalty, setPenalty] = useState(10);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newGroup = {
-      name, description, platform, privacy, pactType,
-      depositAmount: pactType === 'money' ? Number(deposit) : 0,
-      penaltyPerMiss: pactType === 'money' ? Number(penalty) : 0,
+    setLoading(true);
+    
+    const newGroupData = {
+      name,
+      description,
+      payment_type: pactType === 'money' ? 'paid' : 'free',
+      verification_type: 'api', // default
+      deposit_amount: pactType === 'money' ? Number(deposit) : 0,
+      platform,
+      privacy
     };
-    if (onCreate) onCreate(newGroup);
-    onBack();
+
+    try {
+      const response = await fetch('http://localhost:5000/api/groups', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newGroupData)
+      });
+
+      if (response.ok) {
+        const createdGroup = await response.json();
+        if (onCreate) onCreate(createdGroup);
+        onBack();
+      } else {
+        const err = await response.json();
+        alert(err.message || 'Error creating group');
+      }
+    } catch (error) {
+      console.error('Error creating group:', error);
+      alert('Network error while creating group');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,7 +60,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
 
         {/* ── Header ─── */}
         <div className="flex items-center gap-3 mb-8">
-          <button onClick={onBack} className="p-2 rounded-xl hover:bg-gray-200 text-gray-500 transition-colors">
+          <button onClick={onBack} disabled={loading} className="p-2 rounded-xl hover:bg-gray-200 text-gray-500 transition-colors">
             <ArrowLeft size={20} />
           </button>
           <h1 className="text-2xl font-extrabold text-gray-900">Create New Pact</h1>
@@ -50,6 +79,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
               <input
                 type="text" required
                 placeholder="e.g. 100 Days of Code"
+                disabled={loading}
                 value={name} onChange={e => setName(e.target.value)}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium text-gray-900"
               />
@@ -60,6 +90,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
               <input
                 type="text" required
                 placeholder="What is the goal of this pact?"
+                disabled={loading}
                 value={description} onChange={e => setDescription(e.target.value)}
                 className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all font-medium text-gray-900"
               />
@@ -69,6 +100,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1.5">Platform Setup</label>
                 <select
+                  disabled={loading}
                   value={platform} onChange={e => setPlatform(e.target.value)}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:bg-white focus:outline-none focus:border-blue-500 font-medium text-gray-900 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2220%22%20height%3D%2220%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M5%208l5%205%205-5%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E')] bg-[position:right_12px_center] bg-no-repeat pr-10"
                 >
@@ -81,6 +113,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
                 <div className="flex rounded-xl overflow-hidden border border-gray-200 bg-gray-50 p-1">
                   <button
                     type="button"
+                    disabled={loading}
                     onClick={() => setPrivacy('public')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${privacy === 'public' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                   >
@@ -88,6 +121,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
                   </button>
                   <button
                     type="button"
+                    disabled={loading}
                     onClick={() => setPrivacy('private')}
                     className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg text-sm font-semibold transition-all ${privacy === 'private' ? 'bg-white shadow text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
                   >
@@ -107,8 +141,8 @@ export function CreateGroupPage({ onBack, onCreate }) {
             <div className="grid grid-cols-2 gap-4">
               {/* Free Pact Toggle */}
               <div
-                onClick={() => setPactType('free')}
-                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${pactType === 'free' ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
+                onClick={() => !loading && setPactType('free')}
+                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${pactType === 'free' ? 'border-green-500 bg-green-50' : 'border-gray-100 hover:border-gray-200 bg-white'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center mb-3">
                   <span className="text-lg">🤝</span>
@@ -119,8 +153,8 @@ export function CreateGroupPage({ onBack, onCreate }) {
 
               {/* Money Pact Toggle */}
               <div
-                onClick={() => setPactType('money')}
-                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${pactType === 'money' ? 'border-violet-500 bg-violet-50' : 'border-gray-100 hover:border-gray-200 bg-white'}`}
+                onClick={() => !loading && setPactType('money')}
+                className={`cursor-pointer rounded-2xl p-4 border-2 transition-all ${pactType === 'money' ? 'border-violet-500 bg-violet-50' : 'border-gray-100 hover:border-gray-200 bg-white'} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <div className="w-8 h-8 rounded-full flex items-center justify-center mb-3" style={{ background: '#fefce8', color: '#ca8a04' }}>
                   <span className="text-lg">💰</span>
@@ -145,6 +179,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 font-bold">₹</div>
                       <input
                         type="number" min="10" step="10" required
+                        disabled={loading}
                         value={deposit} onChange={e => setDeposit(e.target.value)}
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm focus:bg-white focus:outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20 transition-all font-bold text-gray-900"
                       />
@@ -157,6 +192,7 @@ export function CreateGroupPage({ onBack, onCreate }) {
                       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 font-bold">₹</div>
                       <input
                         type="number" min="1" step="1" required
+                        disabled={loading}
                         value={penalty} onChange={e => setPenalty(e.target.value)}
                         className="w-full bg-gray-50 border border-gray-200 rounded-xl pl-8 pr-4 py-3 text-sm focus:bg-white focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all font-bold text-red-600"
                       />
@@ -169,11 +205,11 @@ export function CreateGroupPage({ onBack, onCreate }) {
 
           <button
             type="submit"
-            className="w-full py-4 rounded-2xl text-base font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-4 rounded-2xl text-base font-bold text-white transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0"
             style={{ background: 'linear-gradient(135deg,#7c3aed,#6366f1)', boxShadow: '0 8px 20px rgba(124,58,237,0.3)' }}
           >
-            <Plus size={20} />
-            Create Pact
+            {loading ? 'Creating...' : <><Plus size={20} /> Create Pact</>}
           </button>
         </form>
 

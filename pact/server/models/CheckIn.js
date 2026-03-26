@@ -12,7 +12,11 @@ const checkInSchema = new mongoose.Schema(
       ref: 'Group',
       required: true,
     },
-    photoUrl: {
+    day: {
+      type: Number,
+      required: true,
+    },
+    image_data: {
       type: String,
       required: true,
     },
@@ -22,7 +26,7 @@ const checkInSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ['pending', 'verified', 'rejected'],
+      enum: ['pending', 'approved', 'rejected'],
       default: 'pending',
     },
     verifiedBy: {
@@ -38,5 +42,8 @@ const checkInSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+// Ensure a user can only submit one check-in per day per group
+checkInSchema.index({ user: 1, group: 1, day: 1 }, { unique: true });
 
 module.exports = mongoose.model('CheckIn', checkInSchema);

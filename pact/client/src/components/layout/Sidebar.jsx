@@ -1,10 +1,11 @@
 import React from 'react';
-import { Home, Users, Wallet, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Home, Users, Wallet, Trophy, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function Sidebar({ expanded, setExpanded, activePage, onNavigate }) {
   const navItems = [
     { id: 'home', label: 'Home', icon: Home },
     { id: 'groups', label: 'Groups', icon: Users },
+    { id: 'leaderboard', label: 'Leaderboard', icon: Trophy },
     { id: 'wallet', label: 'Wallet', icon: Wallet },
   ];
 

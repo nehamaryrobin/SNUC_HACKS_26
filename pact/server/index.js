@@ -15,10 +15,11 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/groups', require('./routes/groups'));
 app.use('/api/checkins', require('./routes/checkins'));
 app.use('/api/streaks', require('./routes/streaks'));
+app.use('/api/wallet', require('./routes/wallet'));
+app.use('/api/users', require('./routes/users'));
 
 // Health check
 app.get('/', (req, res) => res.json({ status: 'Pact API running 🚀' }));
-
 // MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI)

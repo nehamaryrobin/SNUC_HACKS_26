@@ -6,7 +6,6 @@ import { mockGroups } from '../data/mockGroups';
 
 export function GroupsPage({ onOpenGroup, onFindGroups }) {
   return (
-
     <div className="min-h-screen bg-[#f5f7fa] flex flex-col items-center">
       <div className="w-full max-w-2xl px-6 py-8 pb-28">
         <PageHeader title="My Groups" />

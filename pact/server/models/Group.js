@@ -1,5 +1,30 @@
 const mongoose = require('mongoose');
 
+const memberSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  streak: {
+    type: Number,
+    default: 0,
+  },
+  balance: {
+    type: Number,
+    default: 0,
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive', 'kicked'],
+    default: 'active',
+  },
+  lastCompletedDay: {
+    type: Number,
+    default: null,
+  }
+}, { _id: false });
+
 const groupSchema = new mongoose.Schema(
   {
     name: {
@@ -16,12 +41,26 @@ const groupSchema = new mongoose.Schema(
       required: true,
       unique: true,
     },
-    members: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    payment_type: {
+      type: String,
+      enum: ['free', 'paid'],
+      required: true,
+    },
+    verification_type: {
+      type: String,
+      enum: ['api', 'manual'],
+      required: true,
+    },
+    deposit_amount: {
+      type: Number,
+      default: 0,
+    },
+    members: [memberSchema],
     groupStreak: {
       type: Number,
       default: 0,
@@ -34,7 +73,6 @@ const groupSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    // Allows us to track if the group resets or what happens on miss
     startDate: {
       type: Date,
       default: Date.now,

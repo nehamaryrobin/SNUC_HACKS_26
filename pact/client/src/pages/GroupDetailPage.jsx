@@ -6,6 +6,8 @@ import { StreakCalendar } from '../components/groups/StreakCalendar';
 import { SquadStatus } from '../components/groups/SquadStatus';
 import { Leaderboard } from '../components/groups/Leaderboard';
 import { AccountabilityPanel } from '../components/groups/AccountabilityPanel';
+import { ProofActionCenter } from '../components/groups/ProofActionCenter';
+import { GroupActivityFeed } from '../components/groups/GroupActivityFeed';
 
 function StatCard({ icon, label, value, sub, accent }) {
   return (
@@ -20,7 +22,7 @@ function StatCard({ icon, label, value, sub, accent }) {
   );
 }
 
-export function GroupDetailPage({ onBack }) {
+export function GroupDetailPage({ groupId, onBack }) {
   return (
     <div className="min-h-screen bg-[#f5f7fa] px-10 py-6 pb-20 max-w-screen-xl mx-auto">
       {/* ── Header ─────────────────────────────────── */}
@@ -45,6 +47,9 @@ export function GroupDetailPage({ onBack }) {
 
         {/* ════ LEFT COLUMN ════════════════════════ */}
         <div className="flex flex-col gap-6 flex-1 min-w-0">
+          
+          {/* ACTION CENTER - Submit / Verify */}
+          <ProofActionCenter groupId={groupId} />
 
           {/* Activity heatmap */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5">
@@ -90,7 +95,10 @@ export function GroupDetailPage({ onBack }) {
         </div>
 
         {/* ════ RIGHT COLUMN ═══════════════════════ */}
-        <div className="flex flex-col gap-6" style={{ width: 280, minWidth: 260 }}>
+        <div className="flex flex-col gap-6" style={{ width: 320, minWidth: 300 }}>
+
+          {/* Activity Feed */}
+          <GroupActivityFeed groupId={groupId} />
 
           {/* Accountability Panel — only shown for money pacts */}
           <AccountabilityPanel group={g} />

@@ -15,8 +15,42 @@
 body {
   background-color: #f5f7fa;
   color: #111827;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {
   min-height: 100vh;
 }
+
+/* GLOBAL EXPERIMENTAL DARK MODE OVERRIDES */
+body.dark {
+  background-color: #0a0e17 !important;
+  color: #f1f5f9 !important;
+}
+
+/* Utility overrides when dark mode is active to save rewriting 30 components */
+.dark .bg-white { background-color: #161c28 !important; }
+.dark .text-gray-900 { color: #f1f5f9 !important; }
+.dark .text-gray-800 { color: #e2e8f0 !important; }
+.dark .text-gray-700 { color: #cbd5e1 !important; }
+.dark .text-gray-600 { color: #94a3b8 !important; }
+.dark .text-gray-500 { color: #64748b !important; }
+.dark .text-gray-400 { color: #475569 !important; }
+
+.dark .bg-gray-50 { background-color: #0a0e17 !important; }
+.dark .bg-gray-100 { background-color: #161c28 !important; }
+.dark .bg-gray-200 { background-color: #1e293b !important; }
+.dark .bg-gray-300 { background-color: #334155 !important; }
+
+.dark .border-gray-100 { border-color: #1e293b !important; }
+.dark .border-gray-200 { border-color: #334155 !important; }
+.dark .border-white { border-color: #161c28 !important; }
+
+.dark .shadow-sm, 
+.dark .shadow-md, 
+.dark .shadow-lg { 
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5) !important; 
+}
+
+/* Sidebar and general containers using inline style #f5f7fa */
+.dark .bg-\[\#f5f7fa\] { background-color: #0a0e17 !important; }
